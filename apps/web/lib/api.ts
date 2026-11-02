@@ -1,0 +1,2 @@
+export type Health = { status: "ok" };
+export async function getHealth(): Promise<Health> { const base = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000"; const response = await fetch(`${base.replace(/\/$/, "")}/health`, { cache: "no-store", signal: AbortSignal.timeout(5000) }); if (!response.ok) throw new Error("Backend unavailable"); const data: unknown = await response.json(); if (!data || typeof data !== "object" || !("status" in data) || data.status !== "ok") throw new Error("Unexpected health response"); return { status: "ok" }; }

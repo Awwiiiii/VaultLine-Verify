@@ -1,0 +1,88 @@
+{
+  "label": "SYNTHETIC demonstration only. No real parties, financing or legal rights.",
+  "scenarios": [
+    {
+      "key": "matching",
+      "name": "SYNTHETIC Matching invoice and PO",
+      "documents": [
+        {
+          "type": "invoice",
+          "file": "SYNTHETIC-matching-invoice.csv"
+        },
+        {
+          "type": "purchase_order",
+          "file": "SYNTHETIC-matching-purchase_order.csv"
+        }
+      ],
+      "expected_outcome": "passed",
+      "claim": null
+    },
+    {
+      "key": "mismatch",
+      "name": "SYNTHETIC Invoice exceeds PO",
+      "documents": [
+        {
+          "type": "invoice",
+          "file": "SYNTHETIC-mismatch-invoice.csv"
+        },
+        {
+          "type": "purchase_order",
+          "file": "SYNTHETIC-mismatch-purchase_order.csv"
+        }
+      ],
+      "expected_outcome": "discrepancy",
+      "claim": null
+    },
+    {
+      "key": "conflict_a",
+      "name": "SYNTHETIC Potential conflict lender A",
+      "documents": [
+        {
+          "type": "invoice",
+          "file": "SYNTHETIC-conflict-invoice.csv"
+        },
+        {
+          "type": "purchase_order",
+          "file": "SYNTHETIC-conflict-purchase_order.csv"
+        }
+      ],
+      "expected_outcome": "discrepancy",
+      "claim": {
+        "claim_reference": "SYNTHETIC-conflict_a-claim",
+        "lender": "SYNTHETIC Lender Alpha",
+        "amount": "700.00",
+        "currency": "USD",
+        "status": "active"
+      }
+    },
+    {
+      "key": "conflict_b",
+      "name": "SYNTHETIC Potential conflict lender B",
+      "documents": [
+        {
+          "type": "invoice",
+          "file": "SYNTHETIC-conflict-invoice.csv"
+        },
+        {
+          "type": "purchase_order",
+          "file": "SYNTHETIC-conflict-purchase_order.csv"
+        }
+      ],
+      "expected_outcome": "discrepancy",
+      "claim": {
+        "claim_reference": "SYNTHETIC-conflict_b-claim",
+        "lender": "SYNTHETIC Lender Beta",
+        "amount": "700.00",
+        "currency": "USD",
+        "status": "active"
+      }
+    },
+    {
+      "key": "missing",
+      "name": "SYNTHETIC Missing evidence",
+      "documents": [],
+      "expected_outcome": "insufficient_evidence",
+      "claim": null
+    }
+  ]
+}

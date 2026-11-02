@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME:-vaultline_verify}
+      POSTGRES_USER: ${DATABASE_USER:-vaultline_app}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:?Set DATABASE_PASSWORD in the root .env file}
+    ports:
+      - "127.0.0.1:${DATABASE_PORT:-5433}:5432"
+    volumes:
+      - vaultline_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+volumes:
+  vaultline_postgres_data:

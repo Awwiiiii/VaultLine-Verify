@@ -41,3 +41,49 @@ coverage/
 # Editors
 .vscode/
 .idea/
+
+# Sensitive local evidence
+.local/
+
+# Isolated frontend demo/browser artifacts
+.next-*/
+playwright-report/
+test-results/
+
+# Local databases, dumps, backups, and compiler caches
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+*.sqlite-*
+*.sqlite3-*
+*.dump
+*.backup
+*.sql
+*.sql.gz
+!apps/api/migrations/**/*.sql
+backups/
+dumps/
+*.tsbuildinfo
+
+# Local credential stores and private certificate bundles
+.aws/
+.ssh/
+secrets/
+.netrc
+.pypirc
+.npmrc
+id_rsa
+id_ed25519
+*.p12
+*.pfx
+*.jks
+*.keystore
+credentials.json
+service-account*.json
+
+# Export bundles can contain local evidence or browser traces
+*.zip
+*.tar
+*.tar.gz
+*.tgz

@@ -1,0 +1,11 @@
+field,value
+po_number,SYNTHETIC-CLEAN-PO
+issue_date,2026-10-01
+supplier_name,SYNTHETIC Supplier Ltd
+buyer_name,SYNTHETIC Buyer Ltd
+currency,USD
+total_amount,1000.00
+line_items.1.description,SYNTHETIC widgets
+line_items.1.quantity,2
+line_items.1.unit_price,500.00
+line_items.1.amount,1000.00
