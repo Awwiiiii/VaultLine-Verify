@@ -254,3 +254,23 @@ A  compose.yaml
 ?? scripts/release_check.py
 ?? scripts/test_release_check.py
 ```
+
+## Task 004G validation addendum
+
+The Task 004D inventory/results above are historical. Feature 8 and final recording preparation
+were subsequently validated with **159 backend tests**, **2 Chromium journeys**, **7 release-audit
+tests**, Ruff lint/format, frontend lint/build and Alembic consistency at `0006_investigations`.
+Existing database table/row hashes and migration version remained unchanged. No migration was added.
+
+[DEMO_SCRIPT.md](DEMO_SCRIPT.md) supplies the timed three-minute narration, exact navigation,
+expected states, recording checklist and billing-restricted fallback. [SUBMISSION_DRAFT.md](SUBMISSION_DRAFT.md)
+contains accurate submission copy with deliberately unfilled video/public-repository URLs. The two
+additional SYNTHETIC recording CSVs are not seeded and have a tested unique invoice/PO identity,
+preventing an on-camera clean intake from duplicating the seeded matching invoice.
+
+The repository credential/artifact audit reports no findings. The full npm audit still exits 1 with
+16 moderate development-toolchain findings; production-only audit exits 0 with no reported
+vulnerabilities. No forced upgrades or blanket security clearance is claimed. Public-release review,
+the owner license decision (`UNLICENSED` unchanged), live Meta billing restriction and actual
+video/repository publication remain outstanding. No real AI request, billing/credential change,
+GitHub repository creation or push was performed during this preparation.

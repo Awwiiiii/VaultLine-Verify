@@ -9,6 +9,7 @@ from vaultline_api.api.routes.cases import router as cases_router
 from vaultline_api.api.routes.claims import router as claims_router
 from vaultline_api.api.routes.health import router as health_router
 from vaultline_api.api.routes.investigations import router as investigations_router
+from vaultline_api.api.routes.risk import router as risk_router
 from vaultline_api.core.config import get_settings
 
 
@@ -46,6 +47,7 @@ def create_app() -> FastAPI:
     app.include_router(cases_router)
     app.include_router(claims_router)
     app.include_router(investigations_router)
+    app.include_router(risk_router)
     return app
 
 

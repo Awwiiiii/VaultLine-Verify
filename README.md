@@ -26,10 +26,13 @@ inventory, not independent confirmation of competition eligibility or developmen
 | Potential claim conflicts | Conservative cross-case invoice-evidence matching and aggregate active-amount checks |
 | Investigation orchestration | Minimized evidence packages, strict schema/reference validation, persisted reports/errors |
 | Meta provider adapter | `muse-spark-1.3` via Meta Model API, separate from provider-independent orchestration |
+| Risk review indicators | Deterministic categorical assessment, cited findings, freshness checks and mandatory human review |
 | Demonstration and tests | Clearly labeled synthetic cases, rollback-only demo, offline mock-provider tests and Chromium journeys |
 
-Risk scoring, AI-based extraction, OCR, external lender lookup and automated loan decisions are
-not implemented. Navigation placeholders are not completed product modules.
+Numerical predictive risk scoring, AI-based extraction, OCR, external lender lookup and automated
+loan decisions are not implemented. Categorical evidence-based review indicators are implemented. Navigation placeholders are not completed product modules.
+
+See [ROADMAP.md](ROADMAP.md) for the owner-supplied eight-feature roadmap and remaining scope.
 
 ## Meta integration: implementation versus live testing
 
@@ -145,10 +148,13 @@ for the recorded validation results, complete Git inventory and checkpoint instr
 ## Documentation and limits
 
 - [Synthetic demo walkthrough](DEMO.md)
+- [Three-minute recording script](DEMO_SCRIPT.md)
+- [Submission draft](SUBMISSION_DRAFT.md)
 - [Backend setup](apps/api/README.md) and [frontend setup](apps/web/README.md)
 - [Extraction schemas and provenance](apps/api/EXTRACTION.md)
 - [Deterministic verification rules](apps/api/VERIFICATION.md)
 - [Recorded financing claims](apps/api/CLAIMS.md)
+- [Deterministic risk indicators](apps/api/RISK.md)
 - [Evidence-grounded investigations](apps/api/INVESTIGATIONS.md)
 
 Source observations and recorded claims remain unverified assertions. Matching is conservative

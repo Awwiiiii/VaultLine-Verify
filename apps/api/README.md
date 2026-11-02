@@ -1,7 +1,8 @@
 # VaultLine Verify API
 
 Python 3.12/FastAPI backend with case management, deterministic extraction and verification,
-financing claim assertions/conflicts, source provenance and evidence-grounded investigations.
+financing claim assertions/conflicts, source provenance, evidence-grounded investigations and
+deterministic categorical risk indicators.
 See the [root README](../../README.md) for setup, hackathon capabilities and release limitations.
 
 ## Configuration and startup
@@ -38,6 +39,9 @@ Never commit documents, extraction output, local database dumps or secrets.
   conflicts within recorded VaultLine data. Recorded claims do not prove actual financing.
 - [INVESTIGATIONS.md](INVESTIGATIONS.md): provider-independent orchestration, strict grounding,
   saved evidence/report/error records and the Meta adapter.
+
+- [RISK.md](RISK.md): read-only categorical indicators with exact evidence references, freshness
+  checks, reproducible inputs and mandatory human review. No predictive score or loan decision.
 
 The Meta API integration is implemented, but successful live inference remains unvalidated because
 of an external account billing restriction. Do not run the live smoke script during this restriction.

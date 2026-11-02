@@ -37,6 +37,15 @@ async function runVerification(page: Page, expected: string) {
   return panel;
 }
 
+async function assessRisk(page: Page, expected: string) {
+  const panel = page.getByRole("region", { name: "Evidence-based risk assessment", exact: true });
+  await panel.getByRole("button", { name: "Assess recorded evidence", exact: true }).click();
+  await expect(panel.getByRole("heading", { name: expected, exact: true })).toBeVisible();
+  await expect(panel).toContainText("A human must review source evidence");
+  await expect(panel).toContainText("External financing remains unknown");
+  return panel;
+}
+
 async function recordClaim(page: Page, lender: string) {
   const panel = page.getByRole("region", { name: "Financing claims", exact: true });
   await panel.getByRole("combobox", { name: "Invoice", exact: true }).selectOption({ index: 1 });
@@ -61,17 +70,23 @@ test.beforeEach(async ({ context }) => {
 test("synthetic main journey: extraction, checks, competing claims, mock investigation and history", async ({ page }) => {
   await createCase(page, "SYNTHETIC Browser matching");
   await uploadAndExtract(page, "matching");
+  await assessRisk(page, "Insufficient evidence for complete recorded checks");
   const matching = await runVerification(page, "Passed document checks");
   await runVerification(page, "Passed document checks");
   await expect(matching).toContainText("2 saved runs");
   await matching.getByRole("combobox").selectOption({ index: 2 });
   await expect(matching).toContainText("Passed document checks");
+  await assessRisk(page, "No discrepancy found in the recorded checks");
 
   await createCase(page, "SYNTHETIC Browser mismatch");
   await uploadAndExtract(page, "mismatch");
   const mismatch = await runVerification(page, "Discrepancy — investigate");
   const total = mismatch.getByRole("article").filter({ has: page.getByRole("heading", { name: "invoice total", exact: true }) });
   await expect(total).toContainText("Discrepancy — investigate");
+  const discrepancyRisk = await assessRisk(page, "Findings require human review");
+  const riskTotal = discrepancyRisk.getByRole("article").filter({ has: page.getByRole("heading", { name: "Recorded discrepancy: invoice_total", exact: true }) });
+  await riskTotal.getByText("Supporting deterministic findings and provenance", { exact: true }).click();
+  await expect(riskTotal).toContainText("source_document_id");
 
   const firstCase = await createCase(page, "SYNTHETIC Browser conflict Alpha");
   await uploadAndExtract(page, "conflict");
@@ -86,6 +101,9 @@ test("synthetic main journey: extraction, checks, competing claims, mock investi
   await expect(claims).toContainText("Recorded claims do not prove actual financing");
   await claims.getByText("Supporting invoice evidence and provenance", { exact: true }).first().click();
   await expect(claims).toContainText("source_document_id");
+  const conflictRisk = await assessRisk(page, "Findings require human review");
+  await expect(conflictRisk.getByRole("heading", { name: "Potential competing recorded claims", exact: true })).toBeVisible();
+  await expect(conflictRisk.getByRole("heading", { name: "Recorded active amounts exceed invoice total", exact: true })).toBeVisible();
 
   const ai = page.getByRole("region", { name: "AI Investigation", exact: true });
   await ai.getByRole("button", { name: "Start investigation", exact: true }).click();

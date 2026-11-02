@@ -46,6 +46,16 @@ def test_complete_demo_preserves_evidence_and_history():
                     assert len(competing["case_ids"]) == 2
                     assert all(d["provenance"] for d in competing["source_evidence"])
                     assert any(f["category"] == "aggregate_exceeds_invoice" for f in conflicts)
+                assessment = client.get(base + "/risk-assessment").json()
+                assert assessment["human_review_required"] is True
+                expected_risk = (
+                    "no_recorded_discrepancy"
+                    if key == "matching"
+                    else "insufficient_evidence"
+                    if key == "missing"
+                    else "review_findings_present"
+                )
+                assert assessment["assessment_status"] == expected_risk
                 report = client.post(base + "/investigations").json()
                 assert report["status"] == "completed" and report["provider"] == "mock"
                 package = EvidencePackage.model_validate(report["evidence_snapshot"])
@@ -68,3 +78,36 @@ def test_interactive_demo_disables_live_ai_even_with_environment_key(monkeypatch
         assert result["provider"] == "meta" and result["status"] == "failed"
         assert result["error_code"] == "live_disabled"
         assert result["output"] is None
+
+
+def test_recording_intake_pair_matches_without_colliding_with_seeded_demo():
+    """A live upload during recording must not duplicate the already-seeded clean invoice."""
+    from vaultline_api.demo.dataset import DATA_DIR
+
+    with isolated_demo() as app, TestClient(app) as client:
+        seed(client)
+        response = client.post(
+            "/api/v1/cases", json={"counterparty_name": "SYNTHETIC Recording intake"}
+        )
+        assert response.status_code == 201
+        base = "/api/v1/cases/" + response.json()["id"]
+        for kind in ("invoice", "purchase_order"):
+            path = DATA_DIR / f"SYNTHETIC-recording-{kind}.csv"
+            response = client.post(
+                base + "/documents",
+                data={"document_type": kind},
+                files={"file": (path.name, path.read_bytes(), "text/csv")},
+            )
+            assert response.status_code == 201
+            identifier = response.json()["id"]
+            extraction = client.post(base + f"/documents/{identifier}/extract").json()
+            assert extraction["status"] == "extracted"
+            assert all(
+                p["source_document_id"] == identifier for p in extraction["result"]["provenance"]
+            )
+        verification = client.post(base + "/verify").json()
+        assert verification["outcome"] == "passed"
+        assert all(f["outcome"] == "passed" for f in verification["findings"])
+        risk = client.get(base + "/risk-assessment").json()
+        assert risk["assessment_status"] == "no_recorded_discrepancy"
+        assert risk["human_review_required"] is True

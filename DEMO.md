@@ -89,6 +89,17 @@ claim references `SYNTHETIC-conflict_a-claim` / `SYNTHETIC-conflict_b-claim`, am
 case separate: the shared conflict invoice intentionally triggers the dataset-wide duplicate rule.
 The manifest is the authoritative map of files, claim inputs and expected outcomes.
 
+## Feature 8: evidence-based risk assessment
+
+On any case, click **Assess recorded evidence**. The matching case shows **No discrepancy found in
+the recorded checks**, the mismatched and competing-claim cases show **Findings require human review**,
+and the missing case shows **Insufficient evidence for complete recorded checks**. Every result keeps
+**External financing remains unknown** and a human-review requirement visible. Expand a discrepancy
+or conflict indicator to inspect its exact finding, claim IDs and available field provenance.
+These are categorical recorded-evidence indicators, not credit predictions or financing decisions.
+After changing/extracting documents, refresh the assessment; stale coverage asks for a new verification
+run. The read-only assessment is independent of AI and changes no saved histories.
+
 ## Automated validation
 
 From the repository root:
@@ -143,3 +154,12 @@ any demo or test command above. No external AI request was used to validate this
   is persistent; the demo demonstrates history across HTTP requests and browser reloads, not restarts.
 - No production authentication, authorization, global registry or automatic lending decision exists.
 - AI investigation language is bounded, as described in `apps/api/INVESTIGATIONS.md`.
+
+
+## Three-minute recording and submission
+
+Use [DEMO_SCRIPT.md](DEMO_SCRIPT.md) for the timed narration, exact navigation, recording checklist
+and billing-restricted fallback. The extra `SYNTHETIC-recording-invoice.csv` / purchase-order pair
+is intentionally not seeded: use it once for an on-camera new case without duplicating the seeded
+matching invoice. [SUBMISSION_DRAFT.md](SUBMISSION_DRAFT.md) contains draft submission copy and
+unfilled video/public-repository placeholders; no publication or submission is implied.

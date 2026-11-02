@@ -33,3 +33,13 @@ is implemented; successful live Meta inference has not been demonstrated. No liv
 of release checks. The offline interactive demo disables them explicitly, and test mock reports are
 labeled TEST ONLY. See the [root README](../../README.md) and [release preparation](../../RELEASE_PREPARATION.md).
 The project license is undecided; `UNLICENSED` package metadata does not choose a license.
+
+
+## Evidence-based risk assessment
+
+Case details include a deterministic assessment of recorded checks and claim conflicts. Click
+**Assess recorded evidence** after verification or input changes. The panel distinguishes discrepancies,
+potential/duplicate assertions, insufficient or stale evidence, unperformed comparisons and unknown
+external financing. Every indicator links its source finding/assertion and available provenance.
+Human review is always required; no predictive score, financing approval/rejection or legal-rights
+conclusion is made. This read-only view needs no Meta access. See [RISK.md](../api/RISK.md).
