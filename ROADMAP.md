@@ -13,7 +13,7 @@ not a claim that every possible interpretation of the hackathon roadmap is compl
 | 4. Duplicate-financing detection | PARTIAL: potential recorded-dataset conflicts implemented | `claims/engine.py`, claim routes; `test_claims.py`, browser conflict journey | Recorded assertions do not independently establish actual financing; no external registry coverage |
 | 5. Discrepancy/anomaly detection | COMPLETE for documented deterministic checks | Extraction validation, verification and claim conflicts; mismatch/failure tests | No general statistical/predictive anomaly model |
 | 6. Evidence-provenance graph | PARTIAL: traceable relationships implemented | Document/extraction/provenance IDs, finding observations, claim/investigation links; provenance tests/UI | No dedicated graph exploration/visualization API or graph UI |
-| 7. Meta-powered AI investigation | PARTIAL: adapter and grounded orchestration implemented | `investigations/`, persisted snapshots, strict validation; offline provider tests | Successful live Meta inference remains unvalidated because billing is restricted; mock results are test-only |
+| 7. Meta-powered AI investigation | Implemented bounded hosted-Meta investigation; live Baseten application result validated | `investigations/`, persisted snapshots, strict validation, offline provider tests and completed saved Baseten output | Actual model: meta-models/muse-spark-open; original Meta API account restricted; unavailable -1026 identifier not used; mocks remain test-only |
 | 8. Evidence-based risk scoring and decisions | COMPLETE for minimum categorical human-review support | `risk/`, read-only risk service/API and case UI; `test_risk.py`, complete-demo/browser tests | Categorical evidence indicators only; no numerical predictive score or automatic financing decision; no persisted risk-assessment history |
 
 Feature 8 reuses existing findings and exposes explicit uncertainty. No low-risk/creditworthiness,
@@ -50,3 +50,15 @@ Settings distinguishes owner-reported synthetic smoke success from configuration
 normal application live persistence. Runtime readiness is not inferred from an earlier smoke.
 The default remains Meta; Baseten requires explicit backend process selection. The original
 Meta account restriction and unavailable event-specific `-1026` identifier remain separate limits.
+
+## Current release status — Task 006G
+
+The owner confirmed a completed **normal-application** Baseten investigation using
+**`meta-models/muse-spark-open`**. During release review, the local API's saved completed Baseten
+reports were retrieved read-only and their outputs passed the current schema and evidence validator.
+The saved evidence includes the deterministic duplicate-invoice-number discrepancy, cited evidence,
+unresolved questions, next steps and mandatory limitations. This is distinct from the earlier
+no-persistence smoke and from test-only mock reports. No new inference was made during this review.
+The unavailable hackathon-specific `meta-models/muse-spark-open-1026` was **not** used. Historical
+006A–006F statements that normal-application validation was pending are superseded by this update.
+Past success is not a guarantee of current access, availability, model quality or financing validity.

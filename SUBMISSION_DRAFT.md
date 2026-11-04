@@ -2,7 +2,8 @@
 
 Prepared for the Meta Global AI Developer Hackathon 2026, Startup Track.
 **Draft only: not submitted.** Video and repository links below are placeholders. No traction,
-customer pilots or successful live Meta inference are claimed.
+customer pilots are claimed. A completed Baseten-hosted Meta investigation was confirmed by the owner
+and its saved output passed read-only local validation during Task 006G.
 
 ## Project name
 
@@ -30,9 +31,10 @@ references and field provenance. A categorical assessment summarizes those findi
 retaining insufficient evidence and unknown external financing and requiring human review.
 
 A separate provider-independent investigation service prepares minimized evidence packages for
-Meta Muse Spark and validates structured output and references before accepting a report. This
-adapter is implemented, but successful real Meta inference has not yet been validated because of
-an external account billing restriction. The interactive demo disables live requests explicitly.
+Meta Muse Spark Open through Baseten and validates structured output and references before accepting
+a report. A normal-application Baseten investigation completed with cited findings and mandatory
+limitations; the saved evidence included a duplicate-invoice-number discrepancy. The original Meta
+Model API account remains restricted. The isolated interactive demo still disables live requests.
 
 ## Target customers
 
@@ -57,14 +59,17 @@ No pilot, revenue, user-count or adoption claim is made in this draft.
 | Item | Implemented behavior / verified status |
 | --- | --- |
 | Default provider/model | Meta / `muse-spark-1.3` |
-| Endpoint | `https://api.meta.ai/v1/chat/completions` |
+| Validated hosted provider/model | Baseten / `meta-models/muse-spark-open` |
+| Validated hosted endpoint | `https://inference.baseten.co/v1/chat/completions` |
+| Original Meta endpoint | `https://api.meta.ai/v1/chat/completions` (separate restricted account) |
 | Authentication | Bearer key read only from backend process environment; never exposed to frontend |
 | Request | System instructions plus minimized evidence; documented JSON-schema response format |
 | Output | Executive summary, key findings, supporting references, unresolved questions, next verification steps and limitations |
 | Validation | Bounded Pydantic schemas, exact factual-source matching, allowed interpretation language, reference rejection, explicit unknowns |
 | Isolation | AI output does not change deterministic outcomes or make lending decisions |
 | Automated evidence | Mocked Meta HTTP success/error tests and explicitly injected test-only MockAIProvider; no live key needed |
-| Live Meta inference | **Not successfully validated; blocked by account billing restriction** |
+| Live hosted Meta investigation | **Completed through Baseten in the application; saved output revalidated read-only** |
+| Event-specific model | `meta-models/muse-spark-open-1026` was unavailable and was not used |
 | Recorded demonstration | Live requests disabled locally; no mock substitution or successful Meta inference is represented |
 
 The integration follows the official Meta API documentation cited in
@@ -87,7 +92,7 @@ development dates and final submission requirements before submitting.
 6. Source-linked provenance relationships across documents, extracted fields, findings and claims;
    a dedicated interactive graph explorer is not implemented.
 7. Provider-independent Meta investigation adapter, grounding validation and preserved reports/errors;
-   successful live Meta inference remains unvalidated.
+   a completed live Baseten application investigation is confirmed.
 8. Explainable categorical risk indicators with freshness checks, replayable inputs and mandatory
    human review. No predictive credit score or automatic loan approval/rejection.
 
@@ -109,19 +114,20 @@ for scoped statuses rather than interpreting the list as unrestricted feature co
 
 ## Validation evidence
 
-Task 004G validated 159 backend tests, two Chromium journeys and seven release-audit tests,
+Historical Task 004G validated 159 backend tests, two Chromium journeys and seven release-audit tests,
 with Ruff, frontend lint/build and Alembic consistency passing. This includes a regression verifying
 that the recording intake fixture matches without colliding with the five seeded cases. These are local
 software tests, not customer validation, model-quality benchmarks or production-security certification.
 The release checker is heuristic and cannot prove all secrets are absent.
 
-The dependency audit currently requires review of known moderate development-toolchain advisories;
+The historical dependency audit recorded moderate development-toolchain advisories requiring review;
 no forced upgrades or blanket security-clearance claim is made. Public release also awaits the owner’s
 license decision; current package metadata remains `UNLICENSED`.
 
 ## Current limitations
 
-- Live Meta inference is unvalidated because billing is restricted; offline/mock output is not live AI.
+- Original Meta Model API access is restricted. Baseten live success is limited to the observed
+  application reports, not a guarantee of availability or model quality; offline/mock output is not live AI.
 - Authentication, authorization, production retention/access controls and operational hardening are
   not implemented. Local demonstrations use synthetic data only.
 - Supported field/value CSVs and labeled text PDFs only; no OCR or arbitrary-layout understanding.
@@ -137,8 +143,8 @@ license decision; current package metadata remains `UNLICENSED`.
 
 ## Future roadmap — not implemented claims
 
-1. Resolve billing through the account owner and obtain separate authorization for a real synthetic
-   Meta smoke test; validate live response compatibility and retain an honest testing record.
+1. Confirm event-specific model eligibility and expand model-quality evaluation only with separately
+   authorized synthetic requests; the working Baseten model does not establish -1026 eligibility.
 2. Confirm the original feature acceptance criteria and expand provenance graph exploration if needed.
 3. Add appropriately designed access controls, retention policies and deployment hardening before
    handling sensitive production evidence.
@@ -152,12 +158,20 @@ license decision; current package metadata remains `UNLICENSED`.
 **TODO — replace with the actual reviewed three-minute video URL.**
 
 Script and recording checklist: [DEMO_SCRIPT.md](DEMO_SCRIPT.md).
-The video must disclose the synthetic dataset and unvalidated live Meta status.
+The video must disclose the synthetic dataset and distinguish confirmed Baseten output from
+restricted original Meta access and test-only mock output. Do not record private evidence.
 
 ## Public GitHub repository
 
-**TODO — replace with the actual public repository URL after explicit publication authorization.**
+Configured repository: https://github.com/Awwiiiii/VaultLine-Verify
+
+Verify public visibility and manually publish the reviewed checkpoint before submitting.
 
 Recommended repository name: `VaultLine-Verify`. No GitHub repository creation or push is performed
 as part of preparing this draft. Verify the license, dependency review and redacted security checks
 before publication; do not substitute an invented or private URL for the actual public link.
+
+
+Task 006G release validation is recorded in RELEASE_PREPARATION.md. The current work includes
+source-specific grounding, material-finding coverage, separated upload feedback and bounded Cases
+loading. No new live inference, push or actual hackathon submission is part of this review.

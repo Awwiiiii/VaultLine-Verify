@@ -292,3 +292,39 @@ configuration changes are left unstaged. The requested local commit title is
 See DEMO.md for the single authorized normal-application investigation procedure. Existing production
 security, authentication, retention, license and previously recorded dependency-audit limitations
 remain; this release is not a production-security certification.
+
+## Task 006G checkpoint review
+
+Branch: main. Remote: https://github.com/Awwiiiii/VaultLine-Verify.git. Publication is manual;
+no push, tag creation, billing/credential change or new inference occurs during this checkpoint.
+
+The latest uncommitted work consists of 006D upload/extraction feedback and grouped history,
+006E source-specific generation constraints, observation deduplication and mandatory material-finding
+coverage, and 006F bounded/cancellable Cases loading, retry, response validation and separate dev
+artifacts. Corresponding synthetic regression tests and documentation are included. Financial,
+claim-conflict and risk rules/migrations remain unchanged. Existing Next.js-generated configuration
+changes are preserved and left unstaged, not swept into the release commit.
+
+Owner-confirmed live application result: baseten / meta-models/muse-spark-open / completed. The
+release review retrieved saved completed reports read-only through the existing local API and
+validated their output against the saved evidence. Two matching completed reports passed; both
+include the duplicate-invoice-number discrepancy in saved evidence, cited references and limitations.
+No raw evidence, reasoning, case details, report identifiers or model bodies are included in Git.
+The unavailable event-specific -1026 ID is not claimed. Earlier smoke-only/pending statements are
+historical and superseded for this observed application path, not a blanket availability claim.
+
+Required checks: backend pytest, Ruff lint/format, frontend lint/build, Chromium journeys, Alembic
+consistency, offline credential/artifact scan and its seven audit tests. Tests remain synthetic,
+HTTP-mocked and rollback-isolated. The credential/artifact scan is heuristic, not proof of total
+secret absence or a production-security assessment. No current dependency-vulnerability audit was
+requested; historical dependency findings above are not represented as newly measured results.
+
+Submission work still requires owner review of the competition's accepted model/identifier rules,
+a final video/public-repository URL and submission form, and a license decision/dependency-asset
+review. Authentication, authorization and production hardening remain absent. No legal ownership,
+fraud or lending conclusion is established by this demonstration.
+
+Task 006G final results: 246 backend tests passed; 16 Chromium tests passed; Ruff lint and format,
+frontend lint and production build, Alembic consistency at 0006_investigations and seven release-audit
+tests passed. The offline worktree/index/history scan reported no findings. No migration, financial
+rule, credential, billing, existing-evidence or historical-report modification was included.

@@ -10,10 +10,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from vaultline_api.investigations.contracts import (
     EvidencePackage,
-    InvestigationOutput,
     OutputValidationError,
     validate_output,
 )
+from vaultline_api.investigations.generation_schema import grounded_generation_schema
 from vaultline_api.investigations.providers import ProviderError, investigation_instructions
 
 
@@ -55,7 +55,10 @@ class BasetenAIProvider:
             raise ProviderError("baseten_missing_credentials")
         if os.environ.get("AI_EVIDENCE_SHARING_APPROVED") != "true":
             raise ProviderError("sharing_not_approved")
-        schema = InvestigationOutput.model_json_schema()
+        schema = grounded_generation_schema(package)
+        # Bound added grammar size; never truncate away discrepancies to fit a request.
+        if len(json.dumps(schema).encode()) > 200000:
+            raise ProviderError("evidence_too_large")
         body = {
             "model": self.model,
             "reasoning_effort": "low",
@@ -72,7 +75,10 @@ class BasetenAIProvider:
                     "rather than relabeling unknown evidence as an observed fact. Include the "
                     "exact mandatory limitation in limitations with kind ai_interpretation. "
                     "Use only supplied entry IDs as evidence_refs, never case/document IDs. "
-                    "JSON schema: " + json.dumps(schema),
+                    "Every required_finding_refs entry must appear as a separate exact "
+                    "deterministic_finding statement. Never combine two source entries into "
+                    "one factual statement. Select a schema fact branch exactly, including "
+                    "escaped JSON text; do not paraphrase it. JSON schema: " + json.dumps(schema),
                 },
                 {"role": "user", "content": package.model_dump_json()},
             ],

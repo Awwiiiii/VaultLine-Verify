@@ -257,7 +257,7 @@ def test_diagnostics_no_call(client, monkeypatch):
     assert result["configuration"] == "configured" and result["availability"] == "untested"
     assert (
         result["basic_inference"] == "owner_reported_success"
-        and result["live_validation"] == "owner_reported_synthetic_success"
+        and result["live_validation"] == "owner_reported_application_success"
     )
     assert "SYNTHETIC-BASETEN-KEY" not in json.dumps(result)
 

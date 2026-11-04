@@ -17,8 +17,19 @@ from vaultline_api.verification.engine import observe, usable
 
 def build_evidence(db: Session, case_id: UUID) -> EvidencePackage:
     entries: list[EvidenceEntry] = []
+    required: list[str] = []
+    observations_seen: set[str] = set()
 
     def add(identifier, kind, text, documents=None, claims=None, cases=None, provenance=None):
+        # Deduplicate only identical observations, including provenance and source identities.
+        # Never merge different documents, findings, claim assertions or provenance snapshots.
+        if kind == "observed_fact" and not identifier.startswith("claim:"):
+            fingerprint = json.dumps(
+                [kind, text, documents, claims, cases, provenance], sort_keys=True
+            )
+            if fingerprint in observations_seen:
+                return
+            observations_seen.add(fingerprint)
         entries.append(
             EvidenceEntry(
                 id=identifier,
@@ -52,6 +63,8 @@ def build_evidence(db: Session, case_id: UUID) -> EvidencePackage:
                 f"{finding['rule_id']}: {finding['outcome']}. {finding['explanation']}",
                 documents=finding["document_ids"],
             )
+            if finding["outcome"] in {"discrepancy", "insufficient_evidence"}:
+                required.append(f"verification:{i}")
             for j, observation in enumerate(finding["source_evidence"]):
                 parsed = Observation.model_validate(observation)
                 if usable(parsed):
@@ -108,6 +121,7 @@ def build_evidence(db: Session, case_id: UUID) -> EvidencePackage:
             claims=finding["claim_ids"],
             cases=finding["case_ids"],
         )
+        required.append(f"conflict:{i}")
         for j, source in enumerate(finding["source_evidence"]):
             document = DocumentEvidence.model_validate(source)
             for field in FIELDS:
@@ -156,7 +170,11 @@ def build_evidence(db: Session, case_id: UUID) -> EvidencePackage:
         verification_run_id=str(run.id) if run else None,
         verification_created_at=run.created_at.isoformat() if run else None,
         entries=entries,
+        required_finding_refs=required,
+        prompt_version="vaultline.investigation.v2",
     )
+    if len(required) > 40 or any(len(e.text) > 3000 for e in entries if e.id in required):
+        raise ProviderError("evidence_too_large")
     if len(entries) > 500 or len(package.model_dump_json().encode()) > 120000:
         raise ProviderError("evidence_too_large")
     return package

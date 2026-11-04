@@ -100,3 +100,15 @@ Settings distinguishes owner-reported synthetic smoke success from configuration
 normal application live persistence. Runtime readiness is not inferred from an earlier smoke.
 The default remains Meta; Baseten requires explicit backend process selection. The original
 Meta account restriction and unavailable event-specific `-1026` identifier remain separate limits.
+
+## Current release status — Task 006G
+
+The owner confirmed a completed **normal-application** Baseten investigation using
+**`meta-models/muse-spark-open`**. During release review, the local API's saved completed Baseten
+reports were retrieved read-only and their outputs passed the current schema and evidence validator.
+The saved evidence includes the deterministic duplicate-invoice-number discrepancy, cited evidence,
+unresolved questions, next steps and mandatory limitations. This is distinct from the earlier
+no-persistence smoke and from test-only mock reports. No new inference was made during this review.
+The unavailable hackathon-specific `meta-models/muse-spark-open-1026` was **not** used. Historical
+006A–006F statements that normal-application validation was pending are superseded by this update.
+Past success is not a guarantee of current access, availability, model quality or financing validity.

@@ -31,7 +31,9 @@ class ProviderStatus(BaseModel):
     configuration: Literal["configured", "unavailable", "test_only"]
     availability: Literal["unavailable", "untested", "test_only"]
     basic_inference: Literal["owner_reported_success", "untested"] = "untested"
-    live_validation: Literal["untested", "owner_reported_synthetic_success"] = "untested"
+    live_validation: Literal[
+        "untested", "owner_reported_synthetic_success", "owner_reported_application_success"
+    ] = "untested"
 
 
 @router.get("/system/provider", response_model=ProviderStatus)
@@ -53,7 +55,7 @@ def provider_status(provider: Annotated[AIProvider, Depends(get_provider)]) -> P
         basic_inference="owner_reported_success"
         if isinstance(provider, BasetenAIProvider)
         else "untested",
-        live_validation="owner_reported_synthetic_success"
+        live_validation="owner_reported_application_success"
         if isinstance(provider, BasetenAIProvider)
         else "untested",
         configuration="configured" if configured else "unavailable",

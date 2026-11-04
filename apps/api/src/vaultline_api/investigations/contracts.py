@@ -48,6 +48,7 @@ class EvidencePackage(StrictModel):
     entries: list[EvidenceEntry]
     scope: str = "Recorded VaultLine dataset only; external financing is unverified."
     prompt_version: str = PROMPT_VERSION
+    required_finding_refs: list[str] = Field(default_factory=list)
 
 
 class Statement(StrictModel):
@@ -110,15 +111,26 @@ def validate_output(raw: str, package: EvidencePackage) -> InvestigationOutput:
             used.update(refs)
             if statement.kind in {"observed_fact", "deterministic_finding"}:
                 if len(refs) != 1:
-                    raise OutputValidationError("grounding")
+                    raise OutputValidationError("grounding_sources")
                 source = allowed[next(iter(refs))]
-                if source.kind != statement.kind or statement.text != source.text:
-                    raise OutputValidationError("grounding")
+                if source.kind != statement.kind:
+                    raise OutputValidationError("grounding_kind")
+                if statement.text != source.text:
+                    raise OutputValidationError("grounding_text")
             elif statement.kind == "unknown":
                 if statement.text not in UNKNOWNS:
                     raise OutputValidationError("vocabulary")
             elif statement.text not in (*INTERPRETATIONS, *STEPS, LIMITATION):
                 raise OutputValidationError("vocabulary")
+    factual_refs = {
+        ref
+        for section in sections
+        for statement in section
+        if statement.kind == "deterministic_finding"
+        for ref in statement.evidence_refs
+    }
+    if not set(package.required_finding_refs) <= factual_refs:
+        raise OutputValidationError("material_findings")
     if cited != used:
         raise OutputValidationError("evidence_index")
     if not any(s.kind == "unknown" and s.text == UNKNOWNS[1] for s in result.unresolved_questions):

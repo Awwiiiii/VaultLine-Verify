@@ -1,6 +1,22 @@
 """Allowlisted diagnostics only: never include model values or validation exception text."""
 
 BASETEN_DIAGNOSTICS = {
+    "baseten_grounding_sources": (
+        "evidence_grounding",
+        "A factual statement must cite exactly one source entry.",
+    ),
+    "baseten_grounding_kind": (
+        "evidence_grounding",
+        "Factual statement kind differs from its cited source kind.",
+    ),
+    "baseten_grounding_text": (
+        "evidence_grounding",
+        "Factual statement text differs from its cited source text.",
+    ),
+    "baseten_material_findings": (
+        "evidence_coverage",
+        "Material discrepancies or conflicts were not reported as exact deterministic findings.",
+    ),
     "baseten_envelope": (
         "response_envelope",
         "Invalid provider JSON envelope or choice/message structure.",

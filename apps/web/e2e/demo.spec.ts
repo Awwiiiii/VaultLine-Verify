@@ -16,9 +16,10 @@ async function createCase(page: Page, name: string) {
 async function uploadAndExtract(page: Page, scenario: string) {
   for (const kind of ["invoice", "purchase_order"]) {
     const name = `SYNTHETIC-${scenario}-${kind}.csv`;
-    await page.getByRole("combobox", { name: "Document type", exact: true }).selectOption(kind);
-    await page.getByLabel("Document", { exact: true }).setInputFiles(resolve(fixtures, name));
-    await page.getByRole("button", { name: "Upload document", exact: true }).click();
+    const area = page.getByRole("region", { name: kind === "invoice" ? "Invoice documents" : "Purchase order documents", exact: true });
+    await area.getByLabel(kind === "invoice" ? "Invoice file" : "Purchase order file", { exact: true }).setInputFiles(resolve(fixtures, name));
+    await area.getByRole("button", { name: kind === "invoice" ? "Upload invoice" : "Upload purchase order", exact: true }).click();
+    await expect(area.getByText("Upload successful:", { exact: false })).toBeVisible();
     const doc = page.getByRole("listitem").filter({ has: page.getByRole("heading", { name, exact: true }) });
     await expect(doc).toBeVisible();
     await expect(doc).toContainText(kind === "invoice" ? "Invoice" : "Purchase order");
@@ -180,13 +181,112 @@ test("settings and case navigation fit a narrow viewport", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Verification cases", exact: true })).toBeVisible();
 });
 
-test("Baseten diagnostics distinguish reported smoke success from live persistence", async ({ page }) => {
+test("Baseten diagnostics distinguish historical application success from availability", async ({ page }) => {
   await page.route("**/system/provider", route => route.fulfill({ json: {
     provider: "baseten", model: "meta-models/muse-spark-open", configuration: "configured",
-    availability: "untested", live_validation: "owner_reported_synthetic_success", basic_inference: "owner_reported_success",
+    availability: "untested", live_validation: "owner_reported_application_success", basic_inference: "owner_reported_success",
   } }));
   await page.goto("/settings");
   await expect(page.getByText("baseten · meta-models/muse-spark-open", { exact: true })).toBeVisible();
   await expect(page.getByText("Baseten-hosted Meta basic inference: owner-reported success.", { exact: false })).toBeVisible();
-  await expect(page.getByText("Normal application live persistence: not yet validated.", { exact: false })).toBeVisible();
+  await expect(page.getByText("Normal application investigation: owner-confirmed completed with evidence references and mandatory limitations.", { exact: false })).toBeVisible();
+});
+
+test("separate uploads confirm persistence, prevent repeat submissions and keep one case", async ({ page, request }) => {
+  const url = await createCase(page, "SYNTHETIC separate upload feedback");
+  const id = url.split("/").pop();
+  const invoice = page.getByRole("region", { name: "Invoice documents", exact: true });
+  const po = page.getByRole("region", { name: "Purchase order documents", exact: true });
+  await expect(invoice.getByText("No file selected", { exact: true })).toBeVisible();
+  await expect(invoice.getByRole("button", { name: "Upload invoice", exact: true })).toBeDisabled();
+  await invoice.getByLabel("Invoice file", { exact: true }).setInputFiles(resolve(fixtures, "SYNTHETIC-recording-invoice.csv"));
+  await expect(invoice.getByText("File selected:", { exact: false })).toContainText("bytes");
+  let posts = 0;
+  let release!: () => void;
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  await page.route(`**/cases/${id}/documents`, async route => {
+    if (route.request().method() === "POST") { posts++; await gate; }
+    await route.continue();
+  });
+  await invoice.getByRole("button", { name: "Upload invoice", exact: true }).evaluate(button => { (button as HTMLButtonElement).click(); (button as HTMLButtonElement).click(); });
+  await expect(invoice.getByRole("button", { name: "Uploading invoice…", exact: true })).toBeDisabled();
+  await expect(invoice.getByRole("progressbar")).toBeVisible();
+  await expect(invoice.getByText("Upload successful:", { exact: false })).toHaveCount(0);
+  release();
+  await expect(invoice.getByText("Upload successful:", { exact: false })).toBeVisible();
+  expect(posts).toBe(1);
+  await expect(invoice.getByRole("button", { name: "Upload invoice", exact: true })).toBeDisabled();
+  await expect(invoice).toContainText("Uploaded — not extracted");
+  await po.getByLabel("Purchase order file", { exact: true }).setInputFiles(resolve(fixtures, "SYNTHETIC-recording-purchase_order.csv"));
+  await po.getByRole("button", { name: "Upload purchase order", exact: true }).click();
+  await expect(po.getByText("Upload successful:", { exact: false })).toBeVisible();
+  const response = await request.get(`http://127.0.0.1:8102/api/v1/cases/${id}/documents`);
+  const docs = await response.json();
+  expect(docs).toHaveLength(2);
+  expect(docs.map((d: { document_type: string }) => d.document_type).sort()).toEqual(["invoice", "purchase_order"]);
+  await invoice.getByRole("button", { name: "Extract financial fields", exact: true }).click();
+  await expect(invoice).toContainText("Extracted successfully");
+  await page.reload();
+  await expect(invoice).toContainText("Extracted successfully");
+  await expect(po).toContainText("Uploaded — not extracted");
+  await page.setViewportSize({ width: 390, height: 844 });
+  const overflow = await page.evaluate(() => [...document.querySelectorAll("main *")].filter(e => e.getBoundingClientRect().right > innerWidth + 1).map(e => ({ tag: e.tagName, classes: e.className, width: e.getBoundingClientRect().width })).slice(0, 8));
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), JSON.stringify(overflow)).toBeTruthy();
+});
+
+test("upload failure and invalid selection give actionable feedback without false success", async ({ page }) => {
+  const url = await createCase(page, "SYNTHETIC upload failures");
+  const id = url.split("/").pop();
+  const area = page.getByRole("region", { name: "Invoice documents", exact: true });
+  await area.getByLabel("Invoice file", { exact: true }).setInputFiles({ name: "SYNTHETIC-invalid.txt", mimeType: "text/plain", buffer: Buffer.from("SYNTHETIC") });
+  await area.getByRole("button", { name: "Upload invoice", exact: true }).click();
+  await expect(area.getByRole("alert")).toContainText("non-empty PDF or CSV");
+  await area.getByLabel("Invoice file", { exact: true }).setInputFiles(resolve(fixtures, "SYNTHETIC-recording-invoice.csv"));
+  await page.route(`**/cases/${id}/documents`, route => route.request().method() === "POST" ? route.fulfill({ status: 503, json: { detail: "Upload service unavailable" } }) : route.continue());
+  await area.getByRole("button", { name: "Upload invoice", exact: true }).click();
+  await expect(area.getByRole("alert")).toContainText("Refresh documents before retrying");
+  await expect(area.getByText("Upload successful:", { exact: false })).toHaveCount(0);
+  await expect(area.getByRole("button", { name: "Upload invoice", exact: true })).toBeEnabled();
+  await page.unroute(`**/cases/${id}/documents`);
+  await area.getByRole("button", { name: "Upload invoice", exact: true }).click();
+  await expect(area.getByText("Upload successful:", { exact: false })).toBeVisible();
+});
+
+test("extraction loading, failure and needs-review statuses preserve document evidence", async ({ page }) => {
+  await createCase(page, "SYNTHETIC extraction feedback");
+  const area = page.getByRole("region", { name: "Invoice documents", exact: true });
+  await area.getByLabel("Invoice file", { exact: true }).setInputFiles({ name: "SYNTHETIC-incomplete.csv", mimeType: "text/csv", buffer: Buffer.from("field,value\ninvoice_number,SYNTHETIC-INCOMPLETE\n") });
+  await area.getByRole("button", { name: "Upload invoice", exact: true }).click();
+  await expect(area.getByText("Upload successful:", { exact: false })).toBeVisible();
+  let release!: () => void;
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  await page.route("**/documents/*/extract", async route => { await gate; await route.fulfill({ status: 503, json: { detail: "Extraction unavailable. Try again later." } }); });
+  await area.getByRole("button", { name: "Extract financial fields", exact: true }).click();
+  await expect(area.getByText("Reading and normalizing document fields…")).toBeVisible();
+  await expect(area.getByRole("button", { name: "Processing…", exact: true })).toBeDisabled();
+  release();
+  await expect(area.getByRole("alert")).toContainText("Extraction unavailable");
+  await page.unroute("**/documents/*/extract");
+  await area.getByRole("button", { name: "Extract financial fields", exact: true }).click();
+  await expect(area).toContainText("Extraction incomplete — review validation findings");
+  await expect(area.getByRole("heading", { name: "Validation findings", exact: true })).toBeVisible();
+  await area.getByText("Field provenance and original values", { exact: true }).click();
+  await expect(area.getByRole("table")).toContainText("SYNTHETIC-INCOMPLETE");
+});
+
+
+test("saved extraction failure remains visible without hiding earlier documents", async ({ page }) => {
+  await createCase(page, "SYNTHETIC saved extraction failure");
+  const area = page.getByRole("region", { name: "Invoice documents", exact: true });
+  await area.getByLabel("Invoice file", { exact: true }).setInputFiles({ name: "SYNTHETIC-extraction-row-limit.csv", mimeType: "text/csv", buffer: Buffer.from("field,value\n" + "note,SYNTHETIC\n".repeat(10002)) });
+  await area.getByRole("button", { name: "Upload invoice", exact: true }).click();
+  await expect(area.getByText("Upload successful:", { exact: false })).toBeVisible();
+  await area.getByRole("button", { name: "Extract financial fields", exact: true }).click();
+  await expect(area).toContainText("Extraction failed — inspect saved findings or retry");
+  await expect(area.getByRole("button", { name: "Retry extraction", exact: true })).toBeEnabled();
+  await page.reload();
+  await expect(area).toContainText("Extraction failed — inspect saved findings or retry");
+  await area.getByRole("button", { name: "View saved extraction", exact: true }).click();
+  await expect(area.getByRole("heading", { name: "Extraction: failed", exact: true })).toBeVisible();
+  await runVerification(page, "Insufficient evidence");
 });

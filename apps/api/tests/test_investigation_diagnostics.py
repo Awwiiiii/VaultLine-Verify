@@ -68,7 +68,7 @@ def altered(package, failure):
         ("empty_limit", "limitation"),
         ("wrong_limit", "limitation"),
         ("ref", "references"),
-        ("fact", "grounding"),
+        ("fact", "grounding_kind"),
         ("vocabulary", "vocabulary"),
         ("index", "evidence_index"),
         ("uncertainty", "uncertainty"),

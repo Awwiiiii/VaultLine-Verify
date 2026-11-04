@@ -75,6 +75,8 @@ def investigation_instructions() -> str:
         "Include the mandatory limitation as ai_interpretation. Every statement must cite "
         "provided entry IDs. The supporting evidence index must equal all used refs. "
         "Do not add document or claim references outside those already in cited entries. "
+        "Every required_finding_refs entry must appear as its own exact deterministic_finding "
+        "statement; do not omit discrepancies or conflicts or merely cite them as AI opinion. "
         + json.dumps(
             {
                 "interpretations": INTERPRETATIONS,
@@ -179,6 +181,10 @@ class MockAIProvider:
 
     def generate(self, package: EvidencePackage) -> str:
         entry = package.entries[0]
+        required = [e for e in package.entries if e.id in package.required_finding_refs]
+        facts = [{"kind": e.kind, "text": e.text, "evidence_refs": [e.id]} for e in required]
+        if entry.kind != "unknown" and entry.id not in package.required_finding_refs:
+            facts.append({"kind": entry.kind, "text": entry.text, "evidence_refs": [entry.id]})
 
         def statement(kind, text):
             return {"kind": kind, "text": text, "evidence_refs": [entry.id]}
@@ -186,10 +192,10 @@ class MockAIProvider:
         return json.dumps(
             {
                 "executive_summary": [statement("ai_interpretation", INTERPRETATIONS[0])],
-                "key_findings": [statement(entry.kind, entry.text)]
-                if entry.kind != "unknown"
-                else [],
-                "supporting_evidence_references": [entry.id],
+                "key_findings": facts,
+                "supporting_evidence_references": list(
+                    dict.fromkeys([entry.id, *package.required_finding_refs])
+                ),
                 "unresolved_questions": [statement("unknown", text) for text in UNKNOWNS],
                 "recommended_next_verification_steps": [statement("ai_interpretation", STEPS[0])],
                 "limitations": [statement("ai_interpretation", LIMITATION)],

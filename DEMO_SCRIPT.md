@@ -3,7 +3,9 @@
 **Planned recording, not a completed video.** All parties, lenders, documents and claims are SYNTHETIC.
 Target length: exactly 3:00. The demo shows a local prototype, recorded-dataset checks and human review,
 not production readiness, actual financing, fraud or legal ownership. Meta integration is implemented;
-no successful live Meta request has been validated because billing is restricted.
+a Baseten-hosted Meta application investigation completed and its saved output was validated
+read-only during Task 006G. The original Meta account remains restricted. This rollback-only
+recording harness still disables live requests and must not be presented as live Baseten output.
 
 ## Launch and rehearse
 
@@ -99,3 +101,17 @@ or show the saved deterministic runs and provenance while explaining what is pre
 structured investigation generation can be evidenced by the existing **test-only** mock/adapter tests,
 but must remain separate from the live application demonstration. Public submission must retain the
 live-Meta limitation until a separately authorized successful real request is actually validated.
+
+
+## Task 006G recording accuracy
+
+Actual successful provider/model: Baseten / meta-models/muse-spark-open. A completed application
+report with a duplicate-invoice-number discrepancy, evidence references and mandatory limitations
+was confirmed; the -1026 model was not used. Keep the offline demo sequence honest about its
+live-disabled error. Only show an existing live report in a separate reviewed recording if every
+visible source is confirmed synthetic and no keys, private evidence, account or billing details
+are exposed. Do not generate another paid investigation automatically for a recording take.
+
+The upload UI now uses Invoice file / Upload invoice and Purchase order file / Upload purchase
+order instead of a document-type dropdown; both belong to the same case. Wait for success feedback,
+then extract. No finished video or submission is claimed by this script.

@@ -1,5 +1,18 @@
 # Evidence-grounded investigations
 
+## Current release status — Task 006G
+
+The owner confirmed a completed **normal-application** Baseten investigation using
+**`meta-models/muse-spark-open`**. During release review, the local API's saved completed Baseten
+reports were retrieved read-only and their outputs passed the current schema and evidence validator.
+The saved evidence includes the deterministic duplicate-invoice-number discrepancy, cited evidence,
+unresolved questions, next steps and mandatory limitations. This is distinct from the earlier
+no-persistence smoke and from test-only mock reports. No new inference was made during this review.
+The unavailable hackathon-specific `meta-models/muse-spark-open-1026` was **not** used. Historical
+006A–006F statements that normal-application validation was pending are superseded by this update.
+Past success is not a guarantee of current access, availability, model quality or financing validity.
+
+
 AI-assisted review is separate from deterministic financial verification and claim rules.
 It never approves/rejects financing, declares fraud or establishes legal identity, receivable
 ownership, enforceability or absence of external financing. No AI output changes those rules,
@@ -338,3 +351,89 @@ Settings distinguishes owner-reported synthetic smoke success from configuration
 normal application live persistence. Runtime readiness is not inferred from an earlier smoke.
 The default remains Meta; Baseten requires explicit backend process selection. The original
 Meta account restriction and unavailable event-specific `-1026` identifier remain separate limits.
+
+## Task 006E: real-case grounding and generation constraints
+
+Observed owner-reported failure: an extracted invoice/PO pair had passing matching checks plus a
+cross-case duplicate-invoice-number finding, and Baseten returned a report rejected at grounding.
+No original model JSON was supplied. The exact live offending statement cannot be reconstructed,
+and no live call or existing-record update was performed during this task.
+
+The validator's original `grounding` branch rejected three conditions: more than one distinct
+source reference for a fact, a statement kind differing from its source kind, or non-identical
+source text. These now have separate fixed codes (`baseten_grounding_sources`,
+`baseten_grounding_kind`, `baseten_grounding_text`) without logging the statement or source.
+The historical generic code and failed records remain intact. Referencing multiple sources for
+an AI interpretation remains distinct from asserting a single exact factual source.
+
+A confirmed generation-contract gap was present: the generic output schema allowed arbitrary
+statement text and up to 40 references, even for facts. Actual source observations include JSON
+field/value text, escaping and punctuation; the old prompt alone asked the model to reproduce
+these exactly. Real packages also repeated identical invoice/PO observations across checks, while
+the minimal smoke had one unknown entry and no factual-copying task. Synthetic tests reproduce
+all three grounding failures with matching documents plus a duplicate-number finding. This
+establishes the code paths and generation gap, not which mistake the live model made. The reported
+error is not evidence of token exhaustion: length finishes have a separate rejection code.
+
+### Implemented fix
+
+- Baseten now uses an evidence-specific generation schema. Each factual `Statement` alternative
+  couples one exact source kind, exact text (single-value string enums), and a singleton reference
+  to that entry. AI interpretations and unknowns use the existing allowed phrases and supplied
+  entry IDs. The output shape remains InvestigationOutput; the adapter does not rewrite or repair
+  returned text. The same final validator independently checks every returned statement.
+- New evidence packages have `prompt_version=vaultline.investigation.v2` and
+  `required_finding_refs`: every saved discrepancy/insufficient-evidence finding and every current
+  claim-conflict finding must be represented by an exact deterministic statement. An interpretation
+  that merely cites the ID does not satisfy coverage. Missing coverage fails with
+  `baseten_material_findings` / `evidence_coverage`; no material finding is silently dropped.
+- Only identical repeated observations are deduplicated, with kind, text, source document/case,
+  claim associations and complete minimized provenance included in the identity. First-occurrence
+  ordering/IDs are retained. Different documents, fields, normalized values or provenance remain
+  separate. All saved verification findings and conflicts remain; original evidence is untouched.
+- Full minimized provenance remains in the provider package and saved snapshot. Raw document bytes,
+  original-value strings, notes, lender names and unrelated evidence are still excluded. Existing
+  limits of 500 entries / 120 KB remain. Generation schema is additionally bounded to 200 KB.
+  More than 40 required findings or required text over the 3000-character statement limit fails
+  before provider inference instead of truncating or claiming complete coverage. Optional source
+  text too long for a valid statement remains in the snapshot, but is not offered as a fact branch.
+- Old snapshots default to an empty required list, so historical schemas and failed records are
+  not rewritten or retroactively evaluated under new coverage requirements. Financial verification,
+  duplicate detection, claim conflicts and categorical risk calculations are unchanged.
+
+The configurable output budget still covers reasoning plus final JSON. Compaction reduces repeated
+input observations, not the meaning of saved checks. Returning many required findings can still
+exhaust that budget and fails closed. No automatic retry, mode switch, provider fallback or invented
+financial conclusion is added. Unknown external financing, required insufficient-evidence statements,
+mandatory limitation and human review remain enforced.
+
+### Compatibility and one authorized retest
+
+Recommend strict `json_schema` for the next explicitly authorized normal-application run. The new
+nested `anyOf`/enum source branches are standard JSON Schema, but their exact live Baseten/model
+compatibility has not been validated here. `json_prompt` remains an explicit alternative with the
+same schema instructions and unchanged local validation; a schema rejection does not authorize an
+automatic second paid call. The earlier successful smoke does not validate this richer grammar.
+
+With BASETEN_API_KEY privately injected and the intended existing local database at migration head:
+
+```bash
+cd apps/api
+AI_PROVIDER=baseten AI_EVIDENCE_SHARING_APPROVED=true BASETEN_MAX_TOKENS=8192 BASETEN_OUTPUT_MODE=json_schema CORS_ALLOWED_ORIGINS='["http://127.0.0.1:3000"]' uv run uvicorn vaultline_api.main:app --host 127.0.0.1 --port 8001
+```
+
+Start the normal frontend in a second terminal from the repository root:
+
+```bash
+cd apps/web
+NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8001 npm run dev -- --hostname 127.0.0.1 --port 3000
+```
+
+Use a synthetic-only case reproducing the matching invoice/PO plus duplicate-number condition.
+Do not alter the old failed report or existing documents. After separately authorizing one paid
+attempt, click Start investigation exactly once. On success inspect the duplicate-number finding
+alongside the matching checks, evidence refs, scope, limitations and unknown external financing;
+load history to retrieve the same report. On failure record only its sanitized code/stage. Stop
+the normal backend to end the authorized live session. The temporary demo stays live-disabled.
+Do not repeat the smoke in addition to this application request automatically. This procedure adds
+a new report only when the user runs it; release tests use rollback-isolated synthetic data.

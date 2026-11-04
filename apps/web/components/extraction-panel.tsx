@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { request } from "@/lib/cases";
 
@@ -23,12 +23,17 @@ type Extraction = {
   };
 };
 
-export function ExtractionPanel({ caseId, documentId, onStatus }: { caseId: string; documentId: string; onStatus: (status: string) => void }) {
+export function ExtractionPanel({ caseId, documentId, onStatus, onRefresh }: { caseId: string; documentId: string; onStatus: (status: string) => void; onRefresh?: () => Promise<void> }) {
+  const submitting = useRef(false);
+  const [refreshWarning, setRefreshWarning] = useState("");
   const [data, setData] = useState<Extraction | null>(null);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
 
   async function load(extract: boolean) {
+    if (submitting.current) return;
+    submitting.current = true;
+    setRefreshWarning("");
     setPending(true);
     setError("");
     try {
@@ -36,9 +41,11 @@ export function ExtractionPanel({ caseId, documentId, onStatus }: { caseId: stri
       const result = await request<Extraction>(`/${caseId}/documents/${documentId}/${action}`, { method: extract ? "POST" : "GET" });
       setData(result);
       onStatus(result.status);
+      if (onRefresh) { try { await onRefresh(); } catch { setRefreshWarning("Extraction result received, but document details could not refresh. Use Refresh documents."); } }
     } catch (error) {
       setError(error instanceof Error ? error.message : "Extraction request failed");
     } finally {
+      submitting.current = false;
       setPending(false);
     }
   }
@@ -49,7 +56,9 @@ export function ExtractionPanel({ caseId, documentId, onStatus }: { caseId: stri
       <Button variant="outline" disabled={pending} onClick={() => load(false)}>View saved extraction</Button>
     </div>
     {pending && <p role="status">Reading and normalizing document fields…</p>}
+    {refreshWarning && <p role="status">{refreshWarning}</p>}
     {error && <p role="alert" className="text-red-700">{error}</p>}
+    {data && <p role="status">{data.status === "extracted" ? "Extraction successful." : data.status === "failed" ? "Extraction failed. Review the saved error and retry after checking the document." : data.status === "needs_review" ? "Extraction incomplete. Review unresolved fields and validation findings." : `Recorded extraction status: ${data.status}`}</p>}
     {data && <section aria-label="Document extraction" className="space-y-4 rounded-lg bg-slate-50 p-4">
       <h4 className="font-semibold">Extraction: {data.status.replaceAll("_", " ")}</h4>
       <p className="text-slate-600">Extracted values are document observations, not verified financial claims. No OCR or AI is used.</p>

@@ -1,5 +1,18 @@
 # VaultLine Verify — synthetic demo
 
+## Current release status — Task 006G
+
+The owner confirmed a completed **normal-application** Baseten investigation using
+**`meta-models/muse-spark-open`**. During release review, the local API's saved completed Baseten
+reports were retrieved read-only and their outputs passed the current schema and evidence validator.
+The saved evidence includes the deterministic duplicate-invoice-number discrepancy, cited evidence,
+unresolved questions, next steps and mandatory limitations. This is distinct from the earlier
+no-persistence smoke and from test-only mock reports. No new inference was made during this review.
+The unavailable hackathon-specific `meta-models/muse-spark-open-1026` was **not** used. Historical
+006A–006F statements that normal-application validation was pending are superseded by this update.
+Past success is not a guarantee of current access, availability, model quality or financing validity.
+
+
 Every company, lender, invoice and claim below is **SYNTHETIC**. Recorded claims are assertions,
 not proof of actual financing or legal rights. This demonstrates recorded VaultLine evidence only,
 not global financing coverage. Authentication/authorization are not implemented; bind to localhost.
@@ -81,8 +94,8 @@ cd apps/api
 uv run python scripts/demo.py --empty
 ```
 
-Use the same frontend command. Create synthetic cases, select **Invoice** or **Purchase order**
-explicitly, and upload the corresponding files from `demo/synthetic/`. Extract both before
+Use the same frontend command. Create synthetic cases, use the separate **Invoice** and **Purchase order** upload areas
+and upload the corresponding files from `demo/synthetic/`. Extract both before
 verification. For the two competing cases use the same conflict CSV pair, distinct lender names,
 claim references `SYNTHETIC-conflict_a-claim` / `SYNTHETIC-conflict_b-claim`, amount `700.00`, currency
 `USD`, status `active`. Create both claims before inspecting conflicts. Keep the clean matching
@@ -209,7 +222,7 @@ rollback-only demo. No live application run was executed during release preparat
    `meta-models/muse-spark-open`. Configured status alone is not proof of current provider access.
 4. In Cases create `SYNTHETIC authorized Baseten investigation`. Upload the invoice and PO from
    `demo/synthetic/SYNTHETIC-recording-invoice.csv` and `SYNTHETIC-recording-purchase_order.csv`,
-   choosing their document types explicitly. Extract both; run verification and assess recorded
+   using their matching Invoice and Purchase order upload areas. Extract both; run verification and assess recorded
    evidence. If this fixture already exists in the database, duplicate findings may correctly
    appear; do not delete or edit existing evidence to hide them.
 5. After explicitly authorizing this single potentially billable investigation, click **Start
@@ -226,3 +239,16 @@ rollback-only demo. No live application run was executed during release preparat
 8. Stop the backend after this single attempt to end the authorized live session. The normal
    application retains its case and investigation history. Do not run the smoke script as an
    additional automatic check.
+
+
+## Task 006D upload feedback check
+
+In a synthetic case, use Invoice file / Upload invoice and Purchase order file / Upload purchase
+order. Confirm selected filename/byte size, indeterminate upload feedback, success confirmation and
+immediate document entry. Both remain in the same case. The button is disabled during submission
+and cleared after success. A filename/size match warns about a possible repeat; it is not proof of
+identical contents or server-side idempotency. If confirmation is lost, Refresh documents before
+retrying. Extract fields in each saved entry; inspect extracted, needs-review or failed status and
+preserved provenance/findings. Reload to confirm saved status. Missing PO evidence never disables
+verification. Continue through verification, review, risk and investigation only when authorized;
+the temporary demo still disables live AI.
