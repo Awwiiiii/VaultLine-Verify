@@ -163,3 +163,24 @@ and billing-restricted fallback. The extra `SYNTHETIC-recording-invoice.csv` / p
 is intentionally not seeded: use it once for an on-camera new case without duplicating the seeded
 matching invoice. [SUBMISSION_DRAFT.md](SUBMISSION_DRAFT.md) contains draft submission copy and
 unfilled video/public-repository placeholders; no publication or submission is implied.
+
+## Task 005A UI verification
+
+With the same isolated demo servers above:
+
+1. Visit `http://127.0.0.1:3100/dashboard`. Confirm five total recorded cases and five recently
+   created cases. Open a case from its counterparty link. These are creation records, not a
+   global audit feed or aggregate verification outcomes.
+2. Visit `/settings`. Select Dark, 10 cases and ISO date/UTC time. Reload; all three selections
+   persist. Return to Cases and confirm requests use `limit=10`. Open a case and confirm saved
+   verification/investigation timestamps use UTC. Switch back to Light as desired.
+3. Refresh diagnostics. Backend should be Available, database Ready, and the Meta model shown.
+   Offline demo inference must be unavailable and live validation untested. No provider request
+   occurs. Configuration depends on backend environment and never establishes live success.
+4. Visit Documents, Investigations and Audit. Follow Browse verification cases to the existing
+   case workflows. Open Matching, use Evidence and extraction, inspect original provenance, then
+   Verification and a historical run. Assess recorded evidence; human review remains mandatory.
+5. Repeat the mismatch, potential conflict and missing-evidence walkthrough above. Open saved
+   investigation history; the offline demo failure remains honest and auditable.
+6. At a narrow viewport, confirm navigation, Settings controls and case section links remain usable.
+   Stop only the demo servers with Ctrl-C when finished; no existing database is reset.

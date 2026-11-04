@@ -136,3 +136,46 @@ test("creating a case from a later list page returns to the new case", async ({ 
   await expect(page.getByRole("row").filter({ hasText: "SYNTHETIC newest on page one" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Previous", exact: true })).toBeDisabled();
 });
+
+test("local preferences persist and dashboard uses bounded backend data", async ({ page }) => {
+  await page.goto("/settings");
+  await page.getByLabel("Theme", { exact: true }).selectOption("dark");
+  await page.getByLabel("Default case-list page size").selectOption("10");
+  await page.getByLabel("Date display").selectOption("iso");
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await expect(page.getByLabel("Default case-list page size")).toHaveValue("10");
+  await expect(page.getByLabel("Date display")).toHaveValue("iso");
+  await expect(page.getByText("test_only", { exact: true }).first()).toBeVisible();
+  await expect(page.getByText("Live Meta inference: untested.", { exact: false })).toBeVisible();
+  const casesRequest = page.waitForRequest(r => r.url().includes("/api/v1/cases?limit=10&offset=0"));
+  await page.getByRole("link", { name: "Verification cases", exact: true }).click();
+  await casesRequest;
+  await page.route("**/api/v1/cases?limit=5&offset=0", route => route.fulfill({ json: { total: 37, limit: 5, offset: 0, items: [{ id: "synthetic-case", case_reference: "SYNTHETIC-reference", counterparty_name: "SYNTHETIC Dashboard fixture", status: "open", created_at: "2026-01-02T12:00:00Z", updated_at: "2026-01-02T12:00:00Z" }] } }));
+  await page.goto("/dashboard");
+  await expect(page.getByText("37", { exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "SYNTHETIC Dashboard fixture" })).toHaveAttribute("href", "/cases/synthetic-case");
+  await expect(page.getByText("Created 2026-01-02 12:00:00 UTC", { exact: false })).toBeVisible();
+});
+
+test("dashboard failure and malformed local preferences remain usable", async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem("vaultline-preferences", "null"));
+  await page.route("**/api/v1/cases?limit=5&offset=0", route => route.fulfill({ status: 503, json: {} }));
+  await page.goto("/dashboard");
+  await expect(page.getByRole("alert").filter({hasText:"Unable to load overview"})).toBeVisible();
+  await page.getByRole("link", { name: "Open Settings" }).click();
+  await expect(page.getByLabel("Theme", { exact: true })).toHaveValue("light");
+});
+
+test("settings and case navigation fit a narrow viewport", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/settings");
+  await page.getByLabel("Theme", { exact: true }).selectOption("dark");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await page.getByLabel("Theme", { exact: true }).selectOption("light");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
+  await page.getByRole("link", { name: "Audit trail", exact: true }).click();
+  await page.getByRole("link", { name: "Browse verification cases" }).click();
+  await expect(page.getByRole("heading", { name: "Verification cases", exact: true })).toBeVisible();
+});

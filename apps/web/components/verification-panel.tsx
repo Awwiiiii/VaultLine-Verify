@@ -1,4 +1,5 @@
 "use client";
+import { useDateDisplay } from "@/components/preferences";
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -39,6 +40,7 @@ const colors: Record<Outcome, string> = {
 };
 
 export function VerificationPanel({ caseId }: { caseId: string }) {
+ const date = useDateDisplay();
   const [history, setHistory] = useState<History | null>(null);
   const [offset, setOffset] = useState(0);
   const [run, setRun] = useState<Run | null>(null);
@@ -80,14 +82,14 @@ export function VerificationPanel({ caseId }: { caseId: string }) {
     {history?.total === 0 && <p className="text-sm text-slate-500">No verification runs yet. Extract invoices and supporting purchase orders, then run checks.</p>}
     {history && history.total > 0 && <div className="flex flex-wrap items-center gap-3">
       <label className="text-sm">Historical run<select aria-label="Select a historical verification run" className="ml-2 max-w-full rounded border border-slate-300 p-2" disabled={pending} value={history.items.some(item => item.id === run?.id) ? run?.id : ""} onChange={event => { if (event.target.value) execute(event.target.value); }}>
-        <option value="">Select a saved run</option>{history.items.map(item => <option key={item.id} value={item.id}>{new Date(item.created_at).toLocaleString()} — {labels[item.outcome]} — {item.id.slice(0,8)}</option>)}
+        <option value="">Select a saved run</option>{history.items.map(item => <option key={item.id} value={item.id}>{date(item.created_at)} — {labels[item.outcome]} — {item.id.slice(0,8)}</option>)}
       </select></label>
       <Button variant="outline" disabled={pending || offset === 0} onClick={() => setOffset(Math.max(0, offset - 20))}>Newer</Button>
       <Button variant="outline" disabled={pending || offset + 20 >= history.total} onClick={() => setOffset(offset + 20)}>Older</Button>
       <span className="text-xs text-slate-500">{history.total} saved runs</span>
     </div>}
     {run && <div className="space-y-4">
-      <div className="space-y-2 border-t border-slate-100 pt-5"><span className={`inline-block rounded px-3 py-1 text-sm font-medium ${colors[run.outcome]}`}>{labels[run.outcome]}</span><p className="text-xs text-slate-500">{new Date(run.created_at).toLocaleString()} · {run.rule_set_version} · Run {run.id}</p><p className="text-xs text-slate-500">Absolute tolerances: {Object.entries(run.tolerances).map(([key,value]) => `${key.replaceAll("_", " ")}: ${value}`).join(" · ")}</p></div>
+      <div className="space-y-2 border-t border-slate-100 pt-5"><span className={`inline-block rounded px-3 py-1 text-sm font-medium ${colors[run.outcome]}`}>{labels[run.outcome]}</span><p className="text-xs text-slate-500">{date(run.created_at)} · {run.rule_set_version} · Run {run.id}</p><p className="text-xs text-slate-500">Absolute tolerances: {Object.entries(run.tolerances).map(([key,value]) => `${key.replaceAll("_", " ")}: ${value}`).join(" · ")}</p></div>
       {run.findings.map((finding, index) => <article key={index} className="rounded-lg border border-slate-200 p-4">
         <div className="flex flex-wrap items-center justify-between gap-2"><h3 className="text-sm font-semibold">{finding.rule_id.replaceAll("_", " ")}</h3><span className={`rounded px-2 py-1 text-xs ${colors[finding.outcome]}`}>{labels[finding.outcome]}</span></div>
         <p className="mt-2 text-sm text-slate-600">{finding.explanation}</p><p className="mt-1 text-xs text-slate-500">{finding.mandatory ? "Mandatory check" : "Conditional check"}</p>

@@ -1,4 +1,5 @@
 "use client";
+import { useDateDisplay } from "@/components/preferences";
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,7 @@ const categories: Record<string, string> = {
 };
 
 export function RiskPanel({ caseId }: { caseId: string }) {
+ const date = useDateDisplay();
   const [assessment, setAssessment] = useState<Assessment | null>(null);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
@@ -52,7 +54,7 @@ export function RiskPanel({ caseId }: { caseId: string }) {
     {assessment && <div className="space-y-4">
       <h3 className="font-semibold">{labels[assessment.assessment_status]}</h3>
       <p className="font-medium">{assessment.review_requirement}</p>
-      <p className="text-xs text-slate-500">{new Date(assessment.assessed_at).toLocaleString()} · {assessment.rule_version} · Verification coverage: {assessment.input_snapshot.freshness}</p>
+      <p className="text-xs text-slate-500">{date(assessment.assessed_at)} · {assessment.rule_version} · Verification coverage: {assessment.input_snapshot.freshness}</p>
       {assessment.input_snapshot.verification && <p className="break-all text-xs">Saved verification {assessment.input_snapshot.verification.id} · {assessment.input_snapshot.verification.created_at}</p>}
       <p className="text-sm">{assessment.scope}</p>
       {assessment.indicators.map(indicator => <article key={indicator.id} className="space-y-2 rounded border border-slate-200 p-4">

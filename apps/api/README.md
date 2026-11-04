@@ -69,3 +69,12 @@ requires a live model key; normal pytest blocks external HTTP. The database must
 shared synthetic files and browser tests. The demo uses temporary storage and a rollback-only
 schema, with live Meta requests explicitly disabled. MockAIProvider success is tested only inside
 explicit test applications. No financing approval, ownership verification or fraud determination exists.
+
+### Read-only provider diagnostics
+
+`GET /system/provider` reports provider/model, local configuration, prerequisite-based availability
+and `live_validation: untested`. It uses the investigation provider dependency (including explicit
+isolated demo/test overrides), never calls `generate`, and never returns credential values. Meta
+is `configured` only when its process key is present; missing keys, missing sharing approval or
+disabled requests yield unavailable inference. Meeting prerequisites yields `untested`, never
+operational/available. Explicit non-Meta test adapters are labeled `test_only`.

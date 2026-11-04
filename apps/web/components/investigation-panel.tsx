@@ -1,4 +1,5 @@
 "use client";
+import { useDateDisplay } from "@/components/preferences";
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,7 @@ type Report = Summary & { output: { executive_summary: Statement[]; key_findings
 type History = { items: Summary[]; total: number };
 
 export function InvestigationPanel({ caseId }: { caseId: string }) {
+ const date = useDateDisplay();
   const [history, setHistory] = useState<History | null>(null);
   const [report, setReport] = useState<Report | null>(null);
   const [pending, setPending] = useState(false);
@@ -54,12 +56,12 @@ export function InvestigationPanel({ caseId }: { caseId: string }) {
     {error && <p role="alert" className="text-red-700">{error}</p>}
     {history && <div className="space-y-3">
       <label>Saved investigation<select className="ml-2 max-w-full rounded border p-2" value={history.items.some(r => r.id === report?.id) ? report?.id : ""} disabled={pending} onChange={e => { if (e.target.value) execute("get", e.target.value); }}>
-        <option value="">Select a saved report</option>{history.items.map(r => <option key={r.id} value={r.id}>{new Date(r.created_at).toLocaleString()} · {r.status} · {r.id.slice(0, 8)}</option>)}
+        <option value="">Select a saved report</option>{history.items.map(r => <option key={r.id} value={r.id}>{date(r.created_at)} · {r.status} · {r.id.slice(0, 8)}</option>)}
       </select></label>
       <div className="flex gap-3"><Button variant="outline" disabled={pending || offset === 0} onClick={() => execute("history", undefined, Math.max(0, offset - 20))}>Newer</Button><Button variant="outline" disabled={pending || offset + 20 >= history.total} onClick={() => execute("history", undefined, offset + 20)}>Older</Button><span>{history.total} saved investigations</span></div>
     </div>}
     {report && <article className="space-y-4 border-t pt-4">
-      <p className="text-sm">{report.provider} · {report.model} · {report.status} · {new Date(report.created_at).toLocaleString()}</p>
+      <p className="text-sm">{report.provider} · {report.model} · {report.status} · {date(report.created_at)}</p>
       {report.provider === "mock" && <p className="font-semibold text-amber-800">TEST ONLY — deterministic mock investigation; no Meta response.</p>}
       {report.error && <p role="alert" className="text-red-700">{report.error}</p>}
       {report.status === "pending" && <p>This request may still be running or may have been interrupted. Reload history before starting another investigation.</p>}

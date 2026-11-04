@@ -43,3 +43,17 @@ potential/duplicate assertions, insufficient or stale evidence, unperformed comp
 external financing. Every indicator links its source finding/assertion and available provenance.
 Human review is always required; no predictive score, financing approval/rejection or legal-rights
 conclusion is made. This read-only view needs no Meta access. See [RISK.md](../api/RISK.md).
+
+## Task 005A workspace polish
+
+Overview reads one bounded case page (`limit=5`) and its backend total. Recently created cases
+are explicitly scoped creation activity; no verification or conflict aggregates are inferred from
+case workflow status. Documents, Investigations and Audit direct reviewers to existing case-scoped
+workflows rather than claiming those collections are empty.
+
+Settings stores validated light/dark, 10/20/50 case-page size and local/UTC timestamp preferences
+under `vaultline-preferences` in browser storage. Storage failure leaves session controls usable.
+`/health`, `/ready` and `/system/provider` are fetched independently with five-second timeouts.
+Provider diagnostics use the same injected adapter as investigations, expose only name/model and
+categorical local status, and make no provider request. Configured credentials are not proof of
+availability. Live validation remains untested. No credentials can be entered in the browser.
