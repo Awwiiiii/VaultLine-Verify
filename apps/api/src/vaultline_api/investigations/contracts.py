@@ -2,7 +2,7 @@
 
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 PROMPT_VERSION = "vaultline.investigation.v1"
 INTERPRETATIONS = (
@@ -65,13 +65,35 @@ class InvestigationOutput(StrictModel):
     limitations: list[Statement] = Field(min_length=1, max_length=10)
 
 
+class OutputValidationError(ValueError):
+    """A fixed diagnostic code, never raw Pydantic errors containing untrusted input."""
+
+    def __init__(self, code: str):
+        self.code = code
+        super().__init__(code)
+
+
 def validate_output(raw: str, package: EvidencePackage) -> InvestigationOutput:
     """Reject fabricated facts, foreign references and unbounded policy/decision language."""
-    result = InvestigationOutput.model_validate_json(raw)
+    try:
+        result = InvestigationOutput.model_validate_json(raw)
+    except ValidationError as exc:
+        errors = exc.errors(include_input=False, include_context=False, include_url=False)
+        if any(e["type"] == "json_invalid" for e in errors):
+            code = "invalid_json"
+        elif any(e["type"] == "literal_error" and e["loc"][-1:] == ("kind",) for e in errors):
+            code = "statement_kind"
+        elif any(
+            e["loc"] == ("limitations",) and e["type"] in {"missing", "too_short"} for e in errors
+        ):
+            code = "limitation"
+        else:
+            code = "output_schema"
+        raise OutputValidationError(code) from None
     allowed = {e.id: e for e in package.entries}
     cited = set(result.supporting_evidence_references)
     if not cited <= allowed.keys():
-        raise ValueError("Unsupported evidence reference")
+        raise OutputValidationError("references")
     sections = (
         result.executive_summary,
         result.key_findings,
@@ -84,28 +106,28 @@ def validate_output(raw: str, package: EvidencePackage) -> InvestigationOutput:
         for statement in section:
             refs = set(statement.evidence_refs)
             if not refs <= allowed.keys():
-                raise ValueError("Unsupported evidence reference")
+                raise OutputValidationError("references")
             used.update(refs)
             if statement.kind in {"observed_fact", "deterministic_finding"}:
                 if len(refs) != 1:
-                    raise ValueError("Facts require one exact source")
+                    raise OutputValidationError("grounding")
                 source = allowed[next(iter(refs))]
                 if source.kind != statement.kind or statement.text != source.text:
-                    raise ValueError("Unsupported factual statement")
+                    raise OutputValidationError("grounding")
             elif statement.kind == "unknown":
                 if statement.text not in UNKNOWNS:
-                    raise ValueError("Unsupported unknown statement")
+                    raise OutputValidationError("vocabulary")
             elif statement.text not in (*INTERPRETATIONS, *STEPS, LIMITATION):
-                raise ValueError("Unsupported interpretation")
+                raise OutputValidationError("vocabulary")
     if cited != used:
-        raise ValueError("Evidence index must equal statement references")
+        raise OutputValidationError("evidence_index")
     if not any(s.kind == "unknown" and s.text == UNKNOWNS[1] for s in result.unresolved_questions):
-        raise ValueError("External financing uncertainty must be explicit")
+        raise OutputValidationError("uncertainty")
     if not any(s.kind == "ai_interpretation" and s.text == LIMITATION for s in result.limitations):
-        raise ValueError("Mandatory limitation missing")
+        raise OutputValidationError("limitation")
     if any(e.kind == "unknown" or "insufficient_evidence" in e.text for e in package.entries):
         if not any(
             s.kind == "unknown" and s.text == UNKNOWNS[0] for s in result.unresolved_questions
         ):
-            raise ValueError("Insufficient evidence must be explicit")
+            raise OutputValidationError("uncertainty")
     return result

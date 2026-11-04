@@ -70,6 +70,8 @@ def test_complete_demo_preserves_evidence_and_history():
 
 
 def test_interactive_demo_disables_live_ai_even_with_environment_key(monkeypatch):
+    monkeypatch.setenv("AI_PROVIDER", "baseten")
+    monkeypatch.setenv("BASETEN_API_KEY", "SYNTHETIC-BASETEN-NEVER-USED")
     monkeypatch.setenv("MODEL_API_KEY", "SYNTHETIC-KEY-NEVER-USED")
     monkeypatch.setenv("AI_EVIDENCE_SHARING_APPROVED", "true")
     with isolated_demo() as app, TestClient(app) as client:

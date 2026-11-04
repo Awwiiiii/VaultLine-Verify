@@ -57,3 +57,25 @@ under `vaultline-preferences` in browser storage. Storage failure leaves session
 Provider diagnostics use the same injected adapter as investigations, expose only name/model and
 categorical local status, and make no provider request. Configured credentials are not proof of
 availability. Live validation remains untested. No credentials can be entered in the browser.
+
+Baseten selection occurs only in backend process configuration. Settings displays the actual
+provider/model and separates owner-reported successful basic Baseten inference from untested
+VaultLine live schema validation. Saved investigations retain their own provider/model identifiers.
+No browser credentials or live diagnostic probes are added. See the API investigation guide.
+
+
+## Task 006C validation update
+
+The owner confirms one real Baseten request using `meta-models/muse-spark-open` passed local
+schema and evidence validation. The synthetic smoke created no database records. Earlier
+006A/006B statements that this smoke validation was pending are historical and superseded by
+this report; no new live inference was executed during release preparation. Normal application
+live creation/persistence/retrieval remains separately unvalidated. Offline tests exercise the
+configured Baseten adapter, HTTP envelope, real API routes, PostgreSQL save/retrieve, preserved
+history and strict grounding with HTTP mocks. Browser tests validate report rendering and evidence
+references using explicit test-only mock output; they are not live inference evidence.
+
+Settings distinguishes owner-reported synthetic smoke success from configuration and unvalidated
+normal application live persistence. Runtime readiness is not inferred from an earlier smoke.
+The default remains Meta; Baseten requires explicit backend process selection. The original
+Meta account restriction and unavailable event-specific `-1026` identifier remain separate limits.

@@ -274,3 +274,21 @@ vulnerabilities. No forced upgrades or blanket security clearance is claimed. Pu
 the owner license decision (`UNLICENSED` unchanged), live Meta billing restriction and actual
 video/repository publication remain outstanding. No real AI request, billing/credential change,
 GitHub repository creation or push was performed during this preparation.
+
+## Task 006C Baseten local release
+
+Owner-reported live result: one synthetic Baseten request for `meta-models/muse-spark-open`
+passed VaultLine schema and evidence validation, with no database persistence. This is distinct
+from the original restricted Meta account, the unavailable event-specific model ID, and normal
+application live persistence (not run here). No live requests, credential/billing changes, database
+resets or pushes are authorized by this release task.
+
+Release checks: 235 backend tests, six Chromium tests, Ruff lint/format, frontend lint/build,
+Alembic consistency and the offline credential/artifact scan. Automated inference is HTTP-mocked;
+synthetic PostgreSQL writes are rolled back. Financial, claim-conflict and risk rules are unchanged.
+Only reviewed application, synthetic tests and documentation are staged. Existing Next.js-generated
+configuration changes are left unstaged. The requested local commit title is
+`feat: integrate Meta Muse Spark Open through Baseten`; publication requires a separate user action.
+See DEMO.md for the single authorized normal-application investigation procedure. Existing production
+security, authentication, retention, license and previously recorded dependency-audit limitations
+remain; this release is not a production-security certification.

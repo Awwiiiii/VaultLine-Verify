@@ -179,3 +179,14 @@ test("settings and case navigation fit a narrow viewport", async ({ page }) => {
   await page.getByRole("link", { name: "Browse verification cases" }).click();
   await expect(page.getByRole("heading", { name: "Verification cases", exact: true })).toBeVisible();
 });
+
+test("Baseten diagnostics distinguish reported smoke success from live persistence", async ({ page }) => {
+  await page.route("**/system/provider", route => route.fulfill({ json: {
+    provider: "baseten", model: "meta-models/muse-spark-open", configuration: "configured",
+    availability: "untested", live_validation: "owner_reported_synthetic_success", basic_inference: "owner_reported_success",
+  } }));
+  await page.goto("/settings");
+  await expect(page.getByText("baseten · meta-models/muse-spark-open", { exact: true })).toBeVisible();
+  await expect(page.getByText("Baseten-hosted Meta basic inference: owner-reported success.", { exact: false })).toBeVisible();
+  await expect(page.getByText("Normal application live persistence: not yet validated.", { exact: false })).toBeVisible();
+});

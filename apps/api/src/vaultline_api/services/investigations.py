@@ -6,7 +6,8 @@ from sqlalchemy.orm import Session
 
 from vaultline_api.api.routes.cases import require_case
 from vaultline_api.db.models import Investigation
-from vaultline_api.investigations.contracts import validate_output
+from vaultline_api.investigations.contracts import OutputValidationError, validate_output
+from vaultline_api.investigations.diagnostics import error_stage
 from vaultline_api.investigations.evidence import build_evidence
 from vaultline_api.investigations.providers import ERRORS, AIProvider, ProviderError
 
@@ -20,6 +21,7 @@ def response(record: Investigation, detail: bool = True) -> dict:
         "status": record.status,
         "error_code": record.error_code,
         "error": ERRORS.get(record.error_code),
+        "error_stage": error_stage(record.error_code),
         "created_at": record.created_at.isoformat(),
     }
     if detail:
@@ -62,6 +64,9 @@ def investigate(db: Session, case_id: UUID, provider: AIProvider) -> dict:
         output = validate_output(raw, package).model_dump(mode="json")
     except ProviderError as exc:
         error = exc.code if exc.code in ERRORS else "provider_error"
+    except OutputValidationError as exc:
+        code = "baseten_" + exc.code
+        error = code if provider.name == "baseten" and code in ERRORS else "invalid_output"
     except (ValueError, TypeError):
         error = "invalid_output"
     except Exception:

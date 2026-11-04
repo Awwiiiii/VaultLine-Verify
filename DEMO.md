@@ -184,3 +184,45 @@ With the same isolated demo servers above:
    investigation history; the offline demo failure remains honest and auditable.
 6. At a narrow viewport, confirm navigation, Settings controls and case section links remain usable.
    Stop only the demo servers with Ctrl-C when finished; no existing database is reset.
+
+## Task 006C: one authorized investigation in the normal application
+
+The temporary `scripts/demo.py` server remains live-disabled. Do not remove its override. For a
+separately authorized live run use the normal application on localhost with synthetic evidence.
+This creates a new persistent case/report in the configured development database; it is not the
+rollback-only demo. No live application run was executed during release preparation.
+
+1. Privately inject `BASETEN_API_KEY` into the backend shell using your approved secret mechanism.
+   Check that the intended existing local database is at migration head; do not reset it:
+   ```bash
+   cd apps/api
+   uv run alembic current
+   uv run alembic heads
+   AI_PROVIDER=baseten AI_EVIDENCE_SHARING_APPROVED=true BASETEN_MAX_TOKENS=8192 BASETEN_OUTPUT_MODE=json_schema CORS_ALLOWED_ORIGINS='["http://127.0.0.1:3000"]' uv run uvicorn vaultline_api.main:app --host 127.0.0.1 --port 8001
+   ```
+2. In a second terminal from the repository root:
+   ```bash
+   cd apps/web
+   NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8001 npm run dev -- --hostname 127.0.0.1 --port 3000
+   ```
+3. Open `http://127.0.0.1:3000/settings`. Confirm `baseten` and
+   `meta-models/muse-spark-open`. Configured status alone is not proof of current provider access.
+4. In Cases create `SYNTHETIC authorized Baseten investigation`. Upload the invoice and PO from
+   `demo/synthetic/SYNTHETIC-recording-invoice.csv` and `SYNTHETIC-recording-purchase_order.csv`,
+   choosing their document types explicitly. Extract both; run verification and assess recorded
+   evidence. If this fixture already exists in the database, duplicate findings may correctly
+   appear; do not delete or edit existing evidence to hide them.
+5. After explicitly authorizing this single potentially billable investigation, click **Start
+   investigation exactly once**. This sends minimized synthetic evidence to Baseten. No automatic
+   retry or output-mode fallback occurs. If interrupted, load history before considering another
+   separately authorized request.
+6. Confirm `baseten · meta-models/muse-spark-open · completed`, review evidence references,
+   original observations versus AI interpretations, supporting provenance, uncertainty and
+   limitations. On failure report only the sanitized error; do not expose provider bodies or keys.
+7. Reload the case, **Load history**, select the saved report and confirm the same report ID,
+   provider/model, output and evidence snapshot. Its API routes are POST/GET
+   `/api/v1/cases/{case_id}/investigations` and GET
+   `/api/v1/cases/{case_id}/investigations/{investigation_id}`. Retrieval makes no provider call.
+8. Stop the backend after this single attempt to end the authorized live session. The normal
+   application retains its case and investigation history. Do not run the smoke script as an
+   additional automatic check.

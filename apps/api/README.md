@@ -78,3 +78,25 @@ isolated demo/test overrides), never calls `generate`, and never returns credent
 is `configured` only when its process key is present; missing keys, missing sharing approval or
 disabled requests yield unavailable inference. Meeting prerequisites yields `untested`, never
 operational/available. Explicit non-Meta test adapters are labeled `test_only`.
+
+Baseten alternative: explicitly export `AI_PROVIDER=baseten`, privately inject `BASETEN_API_KEY`,
+and approve sharing with `AI_EVIDENCE_SHARING_APPROVED=true` in the backend process. Meta remains
+the default. The fixed model is `meta-models/muse-spark-open`; full VaultLine live validation is
+pending. See [Baseten configuration and one-call opt-in smoke](INVESTIGATIONS.md#baseten-hosted-meta-muse-spark-open-task-006a).
+
+
+## Task 006C validation update
+
+The owner confirms one real Baseten request using `meta-models/muse-spark-open` passed local
+schema and evidence validation. The synthetic smoke created no database records. Earlier
+006A/006B statements that this smoke validation was pending are historical and superseded by
+this report; no new live inference was executed during release preparation. Normal application
+live creation/persistence/retrieval remains separately unvalidated. Offline tests exercise the
+configured Baseten adapter, HTTP envelope, real API routes, PostgreSQL save/retrieve, preserved
+history and strict grounding with HTTP mocks. Browser tests validate report rendering and evidence
+references using explicit test-only mock output; they are not live inference evidence.
+
+Settings distinguishes owner-reported synthetic smoke success from configuration and unvalidated
+normal application live persistence. Runtime readiness is not inferred from an earlier smoke.
+The default remains Meta; Baseten requires explicit backend process selection. The original
+Meta account restriction and unavailable event-specific `-1026` identifier remain separate limits.

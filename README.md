@@ -40,7 +40,7 @@ The Meta adapter uses `https://api.meta.ai/v1/chat/completions`, bearer authenti
 output. The runtime default remains Meta; failed calls never silently become mock output. It reads
 `MODEL_API_KEY` only from the backend process environment. Never put keys in `NEXT_PUBLIC_*` settings.
 
-**Successful live Meta inference has not been validated.** A current account billing restriction is
+**Successful live inference through the original Meta Model API has not been validated.** A current account billing restriction is
 an external testing blocker. No account identifiers or billing details are needed for this repository.
 No live Meta request was executed during release preparation. Do not run the opt-in smoke script
 while this blocker remains. Adapter tests use HTTPX MockTransport; successful mock investigation
@@ -169,3 +169,31 @@ No repository-level license has been selected or added. Package metadata is mark
 to remove an unsupported scaffold ISC declaration; this does not select a project license. The owner
 must decide and document the license and verify dependency/asset obligations before public release.
 Do not describe this repository as permissively licensed or open source until that decision is made.
+
+## Baseten-hosted Meta alternative
+
+Task 006A adds an explicit `AI_PROVIDER=baseten` adapter for **`meta-models/muse-spark-open`**,
+using backend-process `BASETEN_API_KEY`. Meta remains the default; providers never silently fall
+back. The owner independently verified basic Baseten inference (HTTP 200 / stop), while full
+VaultLine structured investigation compatibility remains unvalidated live. The original Meta
+Model API restriction above still applies to that separate account/endpoint. The event-specific
+`meta-models/muse-spark-open-1026` returned 404 in the owner's account and is not used.
+See [Baseten setup, limitations and explicitly authorized synthetic smoke command](apps/api/INVESTIGATIONS.md#baseten-hosted-meta-muse-spark-open-task-006a).
+No live request was made as part of this integration or its automated tests.
+
+
+## Task 006C validation update
+
+The owner confirms one real Baseten request using `meta-models/muse-spark-open` passed local
+schema and evidence validation. The synthetic smoke created no database records. Earlier
+006A/006B statements that this smoke validation was pending are historical and superseded by
+this report; no new live inference was executed during release preparation. Normal application
+live creation/persistence/retrieval remains separately unvalidated. Offline tests exercise the
+configured Baseten adapter, HTTP envelope, real API routes, PostgreSQL save/retrieve, preserved
+history and strict grounding with HTTP mocks. Browser tests validate report rendering and evidence
+references using explicit test-only mock output; they are not live inference evidence.
+
+Settings distinguishes owner-reported synthetic smoke success from configuration and unvalidated
+normal application live persistence. Runtime readiness is not inferred from an earlier smoke.
+The default remains Meta; Baseten requires explicit backend process selection. The original
+Meta account restriction and unavailable event-specific `-1026` identifier remain separate limits.

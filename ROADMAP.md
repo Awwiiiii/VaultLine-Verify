@@ -27,3 +27,26 @@ scope. Do not add external registries or speculative risk predictions merely to 
 Live Meta validation requires billing resolution and separate explicit authorization; it must not be
 run during restricted/offline tasks. License and dependency-release decisions remain separate from
 feature implementation.
+
+Task 006A adds a separate Baseten adapter for Meta open-weight `meta-models/muse-spark-open`.
+The owner reports successful basic inference; VaultLine schema-grounded live investigation remains
+unvalidated pending the separately authorized synthetic smoke test. The event-specific `-1026`
+identifier is unavailable in the owner's account and is not substituted or claimed. The original
+Meta adapter/default and deterministic rules remain intact. See `apps/api/INVESTIGATIONS.md`.
+
+
+## Task 006C validation update
+
+The owner confirms one real Baseten request using `meta-models/muse-spark-open` passed local
+schema and evidence validation. The synthetic smoke created no database records. Earlier
+006A/006B statements that this smoke validation was pending are historical and superseded by
+this report; no new live inference was executed during release preparation. Normal application
+live creation/persistence/retrieval remains separately unvalidated. Offline tests exercise the
+configured Baseten adapter, HTTP envelope, real API routes, PostgreSQL save/retrieve, preserved
+history and strict grounding with HTTP mocks. Browser tests validate report rendering and evidence
+references using explicit test-only mock output; they are not live inference evidence.
+
+Settings distinguishes owner-reported synthetic smoke success from configuration and unvalidated
+normal application live persistence. Runtime readiness is not inferred from an earlier smoke.
+The default remains Meta; Baseten requires explicit backend process selection. The original
+Meta account restriction and unavailable event-specific `-1026` identifier remain separate limits.
